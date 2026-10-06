@@ -1,0 +1,1784 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>神人注册</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, "Microsoft YaHei", sans-serif;
+      background: #000;
+      overflow-x: hidden;
+    }
+
+    .bg-video {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 0;
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    /* ============ 注册卡片 ============ */
+    .card {
+      width: 100%;
+      max-width: 440px;
+      background: #fff;
+      border-radius: 16px;
+      padding: 40px 34px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+      animation: cardIn 0.6s ease;
+    }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .card.hidden { display: none; }
+
+    .card h1 {
+      font-size: 28px;
+      font-weight: 700;
+      text-align: center;
+      color: #1a1a1a;
+      margin-bottom: 8px;
+    }
+
+    .card .subtitle {
+      font-size: 14px;
+      color: #999;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .field { margin-bottom: 18px; }
+
+    .field label {
+      display: block;
+      font-size: 15px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .req { color: #e53935; margin-left: 2px; }
+
+    .gender-row { display: flex; gap: 12px; }
+
+    .gender-btn {
+      flex: 1;
+      padding: 13px 0;
+      font-size: 16px;
+      color: #333;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s ease;
+    }
+
+    .gender-btn:hover { border-color: #aaa; }
+
+    .gender-btn.active {
+      border-color: #1a73e8;
+      color: #1a73e8;
+      background: #eef4ff;
+      font-weight: 600;
+    }
+
+    .input-wrap { position: relative; }
+
+    .input-wrap input {
+      width: 100%;
+      padding: 13px 42px 13px 14px;
+      font-size: 16px;
+      font-family: inherit;
+      color: #222;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .input-wrap input::placeholder { color: #bbb; }
+
+    .input-wrap input:focus {
+      border-color: #1a73e8;
+      box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.15);
+    }
+
+    .input-wrap.error input { border-color: #e53935; box-shadow: none; }
+
+    .input-wrap.error input:focus {
+      box-shadow: 0 0 0 3px rgba(229, 57, 53, 0.15);
+    }
+
+    .err-icon {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      width: 18px;
+      height: 18px;
+      transform: translateY(-50%);
+      color: #e53935;
+      display: none;
+      pointer-events: none;
+    }
+
+    .input-wrap.error .err-icon { display: block; }
+
+    .tip {
+      font-size: 13px;
+      color: #999;
+      margin-top: 7px;
+      min-height: 18px;
+      line-height: 18px;
+    }
+
+    .tip.error { color: #e53935; }
+
+    .submit-btn {
+      width: 100%;
+      margin-top: 14px;
+      padding: 15px 0;
+      font-size: 17px;
+      font-weight: 600;
+      font-family: inherit;
+      color: #fff;
+      background: #1a73e8;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.1s ease;
+    }
+
+    .submit-btn:hover { background: #1666cc; }
+    .submit-btn:active { transform: scale(0.985); }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      15%, 45%, 75% { transform: translateX(-9px); }
+      30%, 60%, 90% { transform: translateX(9px); }
+    }
+
+    .shake { animation: shake 0.25s ease 2; }
+
+    /* ============ 弹窗 ============ */
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(3px);
+    }
+
+    .modal.hidden { display: none; }
+
+    .panel {
+      position: relative;
+      width: 100%;
+      max-width: 480px;
+      background: #fff;
+      border-radius: 14px;
+      padding: 44px 44px 40px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+      animation: popIn 0.3s ease;
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.94); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    .panel h2 {
+      font-size: 22px;
+      font-weight: 700;
+      text-align: center;
+      color: #1a1a1a;
+      margin-bottom: 10px;
+    }
+
+    .panel .desc {
+      font-size: 15px;
+      text-align: left;
+      color: #333;
+      margin-bottom: 22px;
+      line-height: 1.6;
+    }
+
+    /* ============ 滑块 ============ */
+    .slider-track {
+      position: relative;
+      height: 56px;
+      background: #eef0f3;
+      border-radius: 999px;
+      overflow: hidden;
+      user-select: none;
+      margin-top: 10px;
+    }
+
+    .slider-fill {
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 0;
+      background: #d6f5dc;
+      transition: width 0.05s linear;
+    }
+
+    .slider-track.done .slider-fill { background: #b7ebc5; }
+
+    .slider-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      color: #999;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .slider-handle {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      border-radius: 50%;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      cursor: grab;
+      touch-action: none;
+      transition: background 0.2s ease;
+    }
+
+    .slider-handle:active { cursor: grabbing; }
+
+    .slider-handle svg { width: 22px; height: 22px; color: #333; }
+
+    .slider-track.done .slider-handle { background: #22a34a; }
+    .slider-track.done .slider-handle svg { color: #fff; }
+
+    /* ============ 调研 ============ */
+    .survey-btns { display: flex; gap: 16px; margin-top: 8px; }
+
+    .survey-btn {
+      flex: 1;
+      padding: 15px 0;
+      font-size: 17px;
+      font-weight: 600;
+      font-family: inherit;
+      color: #333;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .survey-btn:hover {
+      border-color: #1a73e8;
+      color: #1a73e8;
+      background: #eef4ff;
+    }
+
+    .survey-btn:active { transform: scale(0.97); }
+
+    .answer-error {
+      font-size: 14px;
+      color: #e53935;
+      text-align: center;
+      margin-top: 16px;
+      line-height: 1.5;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .answer-error.show { opacity: 1; }
+
+    /* ============ 契约 ============ */
+    .contract-panel { padding: 36px 34px 30px; }
+    .contract-panel h2 { margin-bottom: 22px; }
+
+    .contract-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .contract-list {
+      list-style: none;
+      counter-reset: item;
+      padding-left: 0;
+      margin-bottom: 22px;
+    }
+
+    .contract-list li {
+      counter-increment: item;
+      position: relative;
+      padding-left: 22px;
+      font-size: 14px;
+      line-height: 1.85;
+      color: #333;
+    }
+
+    .contract-list li::before {
+      content: counter(item) ".";
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: #333;
+      font-weight: 500;
+    }
+
+    .contract-divider { height: 1px; background: #e5e5e5; margin: 0 0 22px; }
+
+    .agree-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 24px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .agree-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #1a73e8;
+      flex-shrink: 0;
+    }
+
+    .agree-row span { font-size: 15px; color: #333; }
+
+    .continue-btn {
+      display: block;
+      width: 100%;
+      max-width: 180px;
+      margin: 0 auto;
+      padding: 13px 0;
+      font-size: 16px;
+      font-weight: 600;
+      font-family: inherit;
+      color: #fff;
+      background: #1a73e8;
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.1s ease;
+    }
+
+    .continue-btn:active { transform: scale(0.97); }
+    .continue-btn:disabled { background: #ccc; cursor: not-allowed; }
+
+    /* ============ 步骤通用 ============ */
+    .step-panel { padding: 40px 34px 34px; }
+
+    .step { display: none; }
+    .step.active { display: block; animation: popIn 0.25s ease; }
+
+    .inline-row {
+      display: flex;
+      gap: 10px;
+      align-items: stretch;
+      margin-top: 6px;
+    }
+
+    .inline-row input {
+      flex: 1;
+      min-width: 0;
+      padding: 13px 14px;
+      font-size: 16px;
+      font-family: inherit;
+      color: #222;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .inline-row input::placeholder { color: #aaa; }
+
+    .inline-row input:focus {
+      border-color: #1a73e8;
+      box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.15);
+    }
+
+    .inline-row input.error {
+      border-color: #e53935;
+      box-shadow: 0 0 0 3px rgba(229, 57, 53, 0.12);
+    }
+
+    .inline-row button {
+      flex-shrink: 0;
+      padding: 0 26px;
+      font-size: 16px;
+      font-weight: 600;
+      font-family: inherit;
+      color: #fff;
+      background: #1a73e8;
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.1s ease;
+      white-space: nowrap;
+    }
+
+    .inline-row button:hover { background: #1666cc; }
+    .inline-row button:active { transform: scale(0.97); }
+
+    .inline-row button:disabled {
+      background: #b8c2cf;
+      cursor: not-allowed;
+    }
+
+    .step-error {
+      font-size: 13px;
+      color: #e53935;
+      text-align: left;
+      margin-top: 10px;
+      min-height: 18px;
+      line-height: 18px;
+    }
+
+    .code-strong { font-weight: 700; color: #333; }
+
+    .color-chip {
+      display: inline-block;
+      width: 22px;
+      height: 22px;
+      border-radius: 4px;
+      vertical-align: middle;
+      margin: 0 4px;
+    }
+
+    .progress-track {
+      height: 12px;
+      background: #e5e7eb;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0;
+      background: #1a73e8;
+      border-radius: 999px;
+      transition: width 0.1s linear;
+    }
+
+    .voice-phrase {
+      font-size: 16px;
+      font-weight: 600;
+      color: #222;
+      background: #f5f6f8;
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-bottom: 6px;
+      line-height: 1.6;
+    }
+
+    /* ============ 躲避注册按钮层 ============ */
+    .dodge-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      background: rgba(0, 0, 0, 0.78);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .dodge-layer.hidden { display: none; }
+
+    .dodge-inner { text-align: center; color: #fff; padding: 20px; }
+
+    .dodge-title {
+      font-size: 30px;
+      margin-bottom: 10px;
+      letter-spacing: 1px;
+    }
+
+    .dodge-sub {
+      font-size: 15px;
+      opacity: 0.8;
+      margin-bottom: 40px;
+    }
+
+    .dodge-btn {
+      padding: 16px 60px;
+      font-size: 18px;
+      font-weight: 600;
+      font-family: inherit;
+      color: #fff;
+      background: #1a73e8;
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(26, 115, 232, 0.4);
+      transition: left 0.12s ease, top 0.12s ease, background 0.2s ease;
+    }
+
+    .dodge-btn.dodging {
+      position: fixed;
+      margin: 0;
+      z-index: 25;
+      box-shadow: 0 8px 24px rgba(26, 115, 232, 0.5);
+    }
+
+    .flag-btn {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      width: 60px;
+      height: 60px;
+      font-size: 30px;
+      line-height: 1;
+      border-radius: 50%;
+      background: #fff;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+      transition: transform 0.15s ease;
+      z-index: 30;
+    }
+
+    .flag-btn:hover { transform: scale(1.1); }
+    .flag-btn:active { transform: scale(0.95); }
+
+    /* ============ 最终确认 ============ */
+    .final-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      background: rgba(0, 0, 0, 0.78);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .final-layer.hidden { display: none; }
+
+    .final-panel {
+      width: 100%;
+      max-width: 480px;
+      background: #fff;
+      border-radius: 14px;
+      padding: 44px 40px 40px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+      animation: popIn 0.3s ease;
+    }
+
+    .final-panel h2 {
+      font-size: 22px;
+      font-weight: 700;
+      text-align: center;
+      color: #1a1a1a;
+      margin-bottom: 10px;
+    }
+
+    .final-panel .desc {
+      font-size: 15px;
+      text-align: center;
+      color: #888;
+      margin-bottom: 18px;
+    }
+
+    .final-phrase {
+      font-size: 18px;
+      font-weight: 700;
+      text-align: center;
+      color: #e53935;
+      line-height: 1.5;
+      margin-bottom: 26px;
+    }
+
+    /* ============ 注册成功 ============ */
+    .success-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      background: rgba(0, 0, 0, 0.78);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .success-layer.hidden { display: none; }
+
+    .success-card {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      background: #fff;
+      border: 2px solid #b7ebc5;
+      border-radius: 16px;
+      padding: 30px 44px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+      animation: popIn 0.35s ease;
+    }
+
+    .success-check {
+      width: 64px;
+      height: 64px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #22a34a;
+      border-radius: 50%;
+    }
+
+    .success-check svg {
+      width: 34px;
+      height: 34px;
+      color: #fff;
+    }
+
+    .success-text {
+      font-size: 28px;
+      font-weight: 700;
+      color: #22a34a;
+      letter-spacing: 2px;
+    }
+
+    @media (max-width: 520px) {
+      .card { padding: 30px 22px; }
+      .card h1 { font-size: 24px; }
+      .gender-row { gap: 8px; }
+      .gender-btn { font-size: 15px; padding: 11px 0; }
+      .panel { padding: 34px 22px 28px; }
+      .panel h2 { font-size: 19px; }
+      .panel .desc { font-size: 14px; }
+      .survey-btn { font-size: 15px; }
+      .contract-panel { padding: 28px 22px 24px; }
+      .contract-list li { font-size: 13px; line-height: 1.75; }
+      .step-panel { padding: 30px 22px 26px; }
+      .inline-row button { padding: 0 18px; font-size: 15px; }
+      .final-panel { padding: 30px 22px 26px; }
+      .final-phrase { font-size: 16px; }
+      .success-card { padding: 24px 30px; gap: 14px; }
+      .success-check { width: 50px; height: 50px; }
+      .success-check svg { width: 26px; height: 26px; }
+      .success-text { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+
+  <video class="bg-video" autoplay muted loop playsinline></video>
+
+  <!-- ========== 注册卡片 ========== -->
+  <div class="page" id="page">
+    <div class="card" id="registerCard">
+      <h1>创建账户</h1>
+      <p class="subtitle">填写以下信息完成注册</p>
+
+      <div class="field">
+        <label>性别 <span class="req">*</span></label>
+        <div class="gender-row" id="gender-row">
+          <button type="button" class="gender-btn" data-gender="男">男</button>
+          <button type="button" class="gender-btn" data-gender="女">女</button>
+          <button type="button" class="gender-btn" data-gender="其他">其他</button>
+        </div>
+        <div class="tip" id="tip-gender"></div>
+      </div>
+
+      <div class="field">
+        <label for="username">用户名 <span class="req">*</span></label>
+        <div class="input-wrap" id="wrap-username">
+          <input type="text" id="username" placeholder="请输入用户名" autocomplete="off">
+          <svg class="err-icon" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </div>
+        <div class="tip" id="tip-username">请输入8位以上字符的用户名</div>
+      </div>
+
+      <div class="field">
+        <label for="password">密码 <span class="req">*</span></label>
+        <div class="input-wrap" id="wrap-password">
+          <input type="password" id="password" placeholder="请输入密码" autocomplete="new-password">
+          <svg class="err-icon" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </div>
+        <div class="tip" id="tip-password">请输入12位以上包含大小写字母、数字及特殊字符的密码</div>
+      </div>
+
+      <div class="field">
+        <label for="phone">手机号 <span class="req">*</span></label>
+        <div class="input-wrap" id="wrap-phone">
+          <input type="tel" id="phone" placeholder="请输入11位手机号" autocomplete="off" maxlength="11">
+          <svg class="err-icon" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </div>
+        <div class="tip" id="tip-phone">请输入有效的手机号码</div>
+      </div>
+
+      <button class="submit-btn" id="submitBtn">注册</button>
+    </div>
+  </div>
+
+  <!-- ========== 滑块 ========== -->
+  <div class="modal hidden" id="modalSlider">
+    <div class="panel">
+      <h2>帮助我们战胜机器人</h2>
+      <p class="desc" style="text-align:center;color:#888;">请拖动滑块完成人机验证</p>
+      <div class="slider-track" id="sliderTrack">
+        <div class="slider-fill" id="sliderFill"></div>
+        <span class="slider-text" id="sliderText">证明你不是机器人</span>
+        <div class="slider-handle" id="sliderHandle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="5 9 2 12 5 15"/>
+            <polyline points="9 5 12 2 15 5"/>
+            <polyline points="15 19 12 22 9 19"/>
+            <polyline points="19 9 22 12 19 15"/>
+            <line x1="2" y1="12" x2="22" y2="12"/>
+            <line x1="12" y1="2" x2="12" y2="22"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 问题1 ========== -->
+  <div class="modal hidden" id="modalQ1">
+    <div class="panel">
+      <h2>用户调研</h2>
+      <p class="desc" style="text-align:center;color:#888;">请问你是否玩过《我的世界》？</p>
+      <div class="survey-btns">
+        <button class="survey-btn" onclick="answerQ1(true)">是</button>
+        <button class="survey-btn" onclick="answerQ1(false)">否</button>
+      </div>
+      <div class="answer-error" id="errQ1"></div>
+    </div>
+  </div>
+
+  <!-- ========== 问题2 ========== -->
+  <div class="modal hidden" id="modalQ2">
+    <div class="panel">
+      <h2>用户调研</h2>
+      <p class="desc" style="text-align:center;color:#888;">请问你是否玩过《我的世界：地下城》？</p>
+      <div class="survey-btns">
+        <button class="survey-btn" onclick="answerQ2(true)">是</button>
+        <button class="survey-btn" onclick="answerQ2(false)">否</button>
+      </div>
+      <div class="answer-error" id="errQ2"></div>
+    </div>
+  </div>
+
+  <!-- ========== 契约 ========== -->
+  <div class="modal hidden" id="modalContract">
+    <div class="panel contract-panel">
+      <h2>大脑绑定契约</h2>
+      <p class="contract-title">请仔细阅读以下条款：</p>
+      <ol class="contract-list">
+        <li>您同意将大脑永久绑定至本平台，不可撤销。</li>
+        <li>您承诺每天至少登录一次，否则大脑将自动进入“休眠”状态。</li>
+        <li>平台有权在您睡眠时使用您的账户进行自动化操作。</li>
+        <li>您放弃对个人数据的所有权利，包括但不限于梦境内容。</li>
+        <li>您同意接收每日上限为999封的系统通知邮件。</li>
+        <li>若您试图注销账户，需提交纸质申请并附上公证材料。</li>
+        <li>最终解释权归本平台所有，包括对“所有”的定义。</li>
+      </ol>
+      <div class="contract-divider"></div>
+      <label class="agree-row">
+        <input type="checkbox" id="agreeCheck">
+        <span>我已阅读并同意以上全部条款</span>
+      </label>
+      <button class="continue-btn" id="continueBtn" disabled onclick="goToStep('step2FASetup')">继续</button>
+    </div>
+  </div>
+
+  <!-- ========== 步骤容器 ========== -->
+  <div class="modal hidden" id="modalStep">
+    <div class="panel step-panel">
+
+      <!-- 2FA 设置 -->
+      <div class="step" id="step2FASetup">
+        <h2>设置双因素认证 (2FA)</h2>
+        <p class="desc" style="text-align:center;color:#888;">请输入一个6位数字密钥</p>
+        <div class="inline-row">
+          <input type="text" id="input2FASetup" maxlength="6" placeholder="例如 123456">
+          <button onclick="submit2FASetup()">确认设置</button>
+        </div>
+        <div class="step-error" id="err2FASetup"></div>
+      </div>
+
+      <!-- 2FA 验证 -->
+      <div class="step" id="step2FAVerify">
+        <h2>验证双因素认证</h2>
+        <p class="desc" style="text-align:center;color:#888;">当前动态码为：<span class="code-strong" id="dynamicCode">------</span></p>
+        <div class="inline-row">
+          <input type="text" id="input2FAVerify" maxlength="6" placeholder="请输入动态码">
+          <button onclick="submit2FAVerify()">验证</button>
+        </div>
+        <div class="step-error" id="err2FAVerify"></div>
+      </div>
+
+      <!-- 邮箱 -->
+      <div class="step" id="stepEmail">
+        <h2>邮箱验证</h2>
+        <p class="desc" style="text-align:center;color:#888;">验证码已发送，测试码：<span class="code-strong">888888</span></p>
+        <div class="inline-row">
+          <input type="text" id="inputEmail" maxlength="6" placeholder="请输入邮箱验证码">
+          <button onclick="submitEmail()">验证</button>
+        </div>
+        <div class="step-error" id="errEmail"></div>
+      </div>
+
+      <!-- 安全提问 -->
+      <div class="step" id="stepSecurity">
+        <h2>安全提问</h2>
+        <p class="desc" style="font-weight:600;">1 + 1 = ?</p>
+        <div class="inline-row">
+          <input type="text" id="inputSecurity" placeholder="请输入答案">
+          <button onclick="submitSecurity()">提交</button>
+        </div>
+        <div class="step-error" id="errSecurity"></div>
+      </div>
+
+      <!-- 系统审核中 -->
+      <div class="step" id="stepReview">
+        <h2>系统审核中</h2>
+        <p class="desc" style="text-align:center;color:#888;">正在审核您的注册信息…</p>
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+
+      <!-- 声纹 -->
+      <div class="step" id="stepVoice">
+        <h2>声纹验证</h2>
+        <p class="desc">请朗读以下句子：</p>
+        <p class="voice-phrase">我的声音是我唯一的身份证明</p>
+        <p class="desc" style="margin-top:14px;">请逐字输入上方句子</p>
+        <div class="inline-row">
+          <input type="text" id="inputVoice" placeholder="请逐字输入上方句子">
+          <button onclick="submitVoice()">确认</button>
+        </div>
+        <div class="step-error" id="errVoice"></div>
+      </div>
+
+      <!-- 色彩辨别 -->
+      <div class="step" id="stepColor">
+        <h2>色彩辨别</h2>
+        <p class="desc">当前显示的背景颜色为<span class="color-chip" style="background:#FF6B35;"></span>，请输入颜色名称</p>
+        <div class="inline-row">
+          <input type="text" id="inputColor" placeholder="例如：红色">
+          <button onclick="submitColor()">确认</button>
+        </div>
+        <div class="step-error" id="errColor"></div>
+      </div>
+
+      <!-- 记忆力 -->
+      <div class="step" id="stepMemory">
+        <h2>记忆力测试</h2>
+        <p class="desc" id="memoryDesc"></p>
+        <div class="inline-row">
+          <input type="text" id="inputMemory" placeholder="请输入刚才的数字">
+          <button onclick="submitMemory()">确认</button>
+        </div>
+        <div class="step-error" id="errMemory"></div>
+      </div>
+
+      <!-- 暗号 -->
+      <div class="step" id="stepCode">
+        <h2>暗号验证</h2>
+        <p class="desc">请输入进入系统的暗号</p>
+        <div class="inline-row">
+          <input type="text" id="inputCode" placeholder="暗号是？">
+          <button onclick="submitCode()">确认</button>
+        </div>
+        <div class="step-error" id="errCode"></div>
+      </div>
+
+      <!-- 宠物 -->
+      <div class="step" id="stepPet">
+        <h2>宠物验证</h2>
+        <p class="desc">你有宠物吗？如果有，请输入宠物名字；如果没有，请输入“我没有”</p>
+        <div class="inline-row">
+          <input type="text" id="inputPet" placeholder="输入答案">
+          <button onclick="submitPet()">确认</button>
+        </div>
+        <div class="step-error" id="errPet"></div>
+      </div>
+
+      <!-- 星座 -->
+      <div class="step" id="stepZodiac">
+        <h2>星座验证</h2>
+        <p class="desc">请输入你的星座 （提示：蛇夫座）</p>
+        <div class="inline-row">
+          <input type="text" id="inputZodiac" placeholder="星座名称">
+          <button onclick="submitZodiac()">确认</button>
+        </div>
+        <div class="step-error" id="errZodiac"></div>
+      </div>
+
+      <!-- 时间 -->
+      <div class="step" id="stepTime">
+        <h2>时间验证</h2>
+        <p class="desc">现在几点？（格式HH:MM）<br><strong>提示：系统时间固定为14:29</strong></p>
+        <div class="inline-row">
+          <input type="text" id="inputTime" placeholder="例如 14:29">
+          <button onclick="submitTime()">确认</button>
+        </div>
+        <div class="step-error" id="errTime"></div>
+      </div>
+
+      <!-- 信仰 -->
+      <div class="step" id="stepFaith">
+        <h2>信仰考验</h2>
+        <p class="desc">你相信光吗？</p>
+        <div class="inline-row">
+          <input type="text" id="inputFaith" placeholder="回答">
+          <button onclick="submitFaith()">确认</button>
+        </div>
+        <div class="step-error" id="errFaith"></div>
+      </div>
+
+      <!-- 隐藏 -->
+      <div class="step" id="stepHidden">
+        <h2>隐藏环节</h2>
+        <p class="desc">恭喜你发现了隐藏环节！请输入：<strong>迪迦</strong></p>
+        <div class="inline-row">
+          <input type="text" id="inputHidden" placeholder="输入">
+          <button onclick="submitHidden()">确认</button>
+        </div>
+        <div class="step-error" id="errHidden"></div>
+      </div>
+
+      <!-- 方程 -->
+      <div class="step" id="stepEquation">
+        <h2>解方程</h2>
+        <p class="desc">请解方程：x² − 5x + 6 = 0，输入x的一个解</p>
+        <div class="inline-row">
+          <input type="text" id="inputEquation" placeholder="输入数字">
+          <button onclick="submitEquation()">确认</button>
+        </div>
+        <div class="step-error" id="errEquation"></div>
+      </div>
+
+      <!-- 圆周率 -->
+      <div class="step" id="stepPi">
+        <h2>圆周率记忆</h2>
+        <p class="desc">请输入圆周率π小数点后第5到第8位</p>
+        <div class="inline-row">
+          <input type="text" id="inputPi" placeholder="例如 9265">
+          <button onclick="submitPi()">确认</button>
+        </div>
+        <div class="step-error" id="errPi"></div>
+      </div>
+
+      <!-- 用户名倒序 -->
+      <div class="step" id="stepReverse">
+        <h2>用户名倒序</h2>
+        <p class="desc">请输入你的用户名 <strong id="reverseName">username</strong> 的倒序</p>
+        <div class="inline-row">
+          <input type="text" id="inputReverse" placeholder="输入">
+          <button onclick="submitReverse()">确认</button>
+        </div>
+        <div class="step-error" id="errReverse"></div>
+      </div>
+
+      <!-- 朗读 -->
+      <div class="step" id="stepRead">
+        <h2>朗读确认</h2>
+        <p class="desc">请大声朗读并输入：<strong>本平台是最棒的</strong></p>
+        <div class="inline-row">
+          <input type="text" id="inputRead" placeholder="输入">
+          <button onclick="submitRead()">确认</button>
+        </div>
+        <div class="step-error" id="errRead"></div>
+      </div>
+
+      <!-- 哲学 -->
+      <div class="step" id="stepPhilosophy">
+        <h2>哲学问题</h2>
+        <p class="desc">先有鸡还是先有蛋？ 输入你的答案</p>
+        <div class="inline-row">
+          <input type="text" id="inputPhilosophy" placeholder="随便答">
+          <button onclick="submitPhilosophy()">确认</button>
+        </div>
+        <div class="step-error" id="errPhilosophy"></div>
+      </div>
+
+      <!-- 质数 -->
+      <div class="step" id="stepPrime">
+        <h2>质数挑战</h2>
+        <p class="desc">请输入1到100之间的一个质数</p>
+        <div class="inline-row">
+          <input type="text" id="inputPrime" placeholder="例如 2">
+          <button onclick="submitPrime()">确认</button>
+        </div>
+        <div class="step-error" id="errPrime"></div>
+      </div>
+
+      <!-- 机器人 -->
+      <div class="step" id="stepRobot">
+        <h2>机器人检测</h2>
+        <p class="desc">请确认你不是机器人：输入 '我不是机器人'</p>
+        <div class="inline-row">
+          <input type="text" id="inputRobot" placeholder="输入">
+          <button onclick="submitRobot()">确认</button>
+        </div>
+        <div class="step-error" id="errRobot"></div>
+      </div>
+
+      <!-- 简单算术 -->
+      <div class="step" id="stepMath">
+        <h2>简单算术</h2>
+        <p class="desc">小明有3个苹果，小红给了小明5个苹果，请问小明现在有几个苹果？</p>
+        <div class="inline-row">
+          <input type="text" id="inputMath" placeholder="数字">
+          <button onclick="submitMath()">确认</button>
+        </div>
+        <div class="step-error" id="errMath"></div>
+      </div>
+
+      <!-- 反向操作 -->
+      <div class="step" id="stepReverseOp">
+        <h2>反向操作</h2>
+        <p class="desc">请输入 '退出' 来继续注册</p>
+        <div class="inline-row">
+          <input type="text" id="inputReverseOp" placeholder="输入">
+          <button onclick="submitReverseOp()">确认</button>
+        </div>
+        <div class="step-error" id="errReverseOp"></div>
+      </div>
+
+      <!-- 年份 -->
+      <div class="step" id="stepYear">
+        <h2>年份确认</h2>
+        <p class="desc">请输入当前年份</p>
+        <div class="inline-row">
+          <input type="text" id="inputYear" placeholder="2026">
+          <button onclick="submitYear()">确认</button>
+        </div>
+        <div class="step-error" id="errYear"></div>
+      </div>
+
+      <!-- 终极放弃 -->
+      <div class="step" id="stepGiveUp">
+        <h2>终极放弃</h2>
+        <p class="desc">最后一次机会，请输入 '放弃' 来通过</p>
+        <div class="inline-row">
+          <input type="text" id="inputGiveUp" placeholder="输入">
+          <button onclick="submitGiveUp()">确认</button>
+        </div>
+        <div class="step-error" id="errGiveUp"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========== 躲避注册按钮层 ========== -->
+  <div class="dodge-layer hidden" id="dodgeLayer">
+    <div class="dodge-inner">
+      <h1 class="dodge-title">🎉 全部验证通过</h1>
+      <p class="dodge-sub">点击下方按钮完成注册</p>
+      <button class="dodge-btn" id="dodgeBtn">注册</button>
+    </div>
+    <button class="flag-btn" id="flagBtn" title="投降">🚩</button>
+  </div>
+
+  <!-- ========== 最终确认 ========== -->
+  <div class="final-layer hidden" id="finalLayer">
+    <div class="final-panel">
+      <h2>最终确认</h2>
+      <p class="desc">请输入以下文字：</p>
+      <p class="final-phrase">我自愿放弃所有权利并永远忠诚于本平台</p>
+      <div class="inline-row">
+        <input type="text" id="inputFinal" placeholder="请逐字输入" autocomplete="off">
+        <button id="finalBtn" disabled onclick="submitFinal()">确认注册</button>
+      </div>
+      <div class="step-error" id="errFinal"></div>
+    </div>
+  </div>
+
+  <!-- ========== 注册成功 ========== -->
+  <div class="success-layer hidden" id="successLayer">
+    <div class="success-card">
+      <div class="success-check">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
+      <span class="success-text">注册成功</span>
+    </div>
+  </div>
+
+  <script>
+    /* ============ 背景视频 ============ */
+    const video = document.querySelector('.bg-video');
+
+    function getVideoNum() {
+      let h = new Date().getHours();
+      if (h === 0) h = 24;
+      return h % 2 === 1 ? h : h - 1;
+    }
+
+    let currentNum = null;
+    function loadVideo(num) {
+      if (num === currentNum) return;
+      currentNum = num;
+      video.src = `${num}.mp4`;
+      video.load();
+      video.play().catch(() => {});
+    }
+
+    loadVideo(getVideoNum());
+    setInterval(() => loadVideo(getVideoNum()), 60 * 1000);
+
+    /* ============ 通用 ============ */
+    const $ = id => document.getElementById(id);
+
+    const MODALS = ['modalSlider', 'modalQ1', 'modalQ2', 'modalContract', 'modalStep'];
+
+    function showModal(id) {
+      MODALS.forEach(m => $(m).classList.add('hidden'));
+      if (id) $(id).classList.remove('hidden');
+    }
+
+    /* ============ 注册校验 ============ */
+    const HINT = {
+      username: '请输入8位以上字符的用户名',
+      password: '请输入12位以上包含大小写字母、数字及特殊字符的密码',
+      phone: '请输入有效的手机号码'
+    };
+
+    function setTip(key, text, isError) {
+      const el = $('tip-' + key);
+      el.textContent = text;
+      el.classList.toggle('error', !!isError);
+    }
+
+    function setWrapError(key, isError) {
+      $('wrap-' + key).classList.toggle('error', !!isError);
+    }
+
+    function shake(key) {
+      const el = key === 'gender' ? $('gender-row') : $('wrap-' + key);
+      if (!el) return;
+      el.classList.remove('shake');
+      void el.offsetWidth;
+      el.classList.add('shake');
+      setTimeout(() => el.classList.remove('shake'), 500);
+    }
+
+    let gender = '';
+
+    document.querySelectorAll('.gender-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.gender-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        gender = btn.dataset.gender;
+        validateGender();
+      });
+    });
+
+    function validateGender(showEmpty) {
+      if (!gender) {
+        setTip('gender', showEmpty ? '请选择性别' : '', !!showEmpty);
+        return false;
+      }
+      if (gender === '男' || gender === '女') {
+        setTip('gender', '该性别已被占用，请选择其他', true);
+        return false;
+      }
+      setTip('gender', '', false);
+      return true;
+    }
+
+    const usernameInput = $('username');
+
+    function validateUsername() {
+      const val = usernameInput.value;
+      if (!val) { setTip('username', HINT.username, false); setWrapError('username', false); return false; }
+      if (val.length < 8) {
+        setTip('username', '该用户名已被占用', true); setWrapError('username', true); return false;
+      }
+      setTip('username', HINT.username, false); setWrapError('username', false); return true;
+    }
+    usernameInput.addEventListener('input', validateUsername);
+
+    const passwordInput = $('password');
+
+    function validatePassword() {
+      const val = passwordInput.value;
+      if (!val) { setTip('password', HINT.password, false); setWrapError('password', false); return false; }
+      const ok = val.length > 12 && /[a-z]/.test(val) && /[A-Z]/.test(val) && /[0-9]/.test(val) && /[^A-Za-z0-9]/.test(val);
+      if (!ok) {
+        setTip('password', '该密码已被占用', true); setWrapError('password', true); return false;
+      }
+      setTip('password', HINT.password, false); setWrapError('password', false); return true;
+    }
+    passwordInput.addEventListener('input', validatePassword);
+
+    const phoneInput = $('phone');
+
+    function validatePhone() {
+      const val = phoneInput.value;
+      if (!val) { setTip('phone', HINT.phone, false); setWrapError('phone', false); return false; }
+      if (!/^\d{11}$/.test(val)) {
+        setTip('phone', '该手机号段已被占用', true); setWrapError('phone', true); return false;
+      }
+      setTip('phone', HINT.phone, false); setWrapError('phone', false); return true;
+    }
+    phoneInput.addEventListener('input', () => {
+      phoneInput.value = phoneInput.value.replace(/\D/g, '').slice(0, 11);
+      validatePhone();
+    });
+
+    $('submitBtn').addEventListener('click', () => {
+      const g  = validateGender(true);
+      const u  = validateUsername();
+      const p  = validatePassword();
+      const ph = validatePhone();
+      if (!g)  shake('gender');
+      if (!u)  shake('username');
+      if (!p)  shake('password');
+      if (!ph) shake('phone');
+      if (g && u && p && ph) {
+        $('registerCard').classList.add('hidden');
+        resetSlider();
+        showModal('modalSlider');
+      }
+    });
+
+    /* ============ 滑块 ============ */
+    const track  = $('sliderTrack');
+    const fill   = $('sliderFill');
+    const handle = $('sliderHandle');
+    const text   = $('sliderText');
+
+    let dragging = false, startX = 0, offsetX = 0, maxX = 0, passed = false;
+
+    function calcMax() { maxX = track.clientWidth - handle.offsetWidth - 8; }
+
+    function setX(x) {
+      offsetX = Math.max(0, Math.min(x, maxX));
+      handle.style.left = (4 + offsetX) + 'px';
+      fill.style.width = (4 + offsetX + handle.offsetWidth / 2) + 'px';
+    }
+
+    function startDrag(e) {
+      if (passed) return;
+      calcMax();
+      dragging = true;
+      startX = (e.touches ? e.touches[0].clientX : e.clientX) - offsetX;
+      text.style.opacity = '0';
+    }
+
+    function moveDrag(e) {
+      if (!dragging) return;
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      setX(clientX - startX);
+      if (e.cancelable) e.preventDefault();
+    }
+
+    function endDrag() {
+      if (!dragging) return;
+      dragging = false;
+      if (offsetX >= maxX - 2) {
+        passed = true;
+        setX(maxX);
+        track.classList.add('done');
+        text.textContent = '验证通过';
+        text.style.opacity = '1';
+        handle.innerHTML = `
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>`;
+        setTimeout(() => showModal('modalQ1'), 500);
+      } else {
+        setX(0);
+        text.style.opacity = '1';
+      }
+    }
+
+    handle.addEventListener('mousedown', startDrag);
+    handle.addEventListener('touchstart', startDrag, { passive: true });
+    document.addEventListener('mousemove', moveDrag);
+    document.addEventListener('touchmove', moveDrag, { passive: false });
+    document.addEventListener('mouseup', endDrag);
+    document.addEventListener('touchend', endDrag);
+    window.addEventListener('resize', calcMax);
+    calcMax();
+
+    function resetSlider() {
+      passed = false;
+      dragging = false;
+      track.classList.remove('done');
+      handle.style.left = '4px';
+      fill.style.width = '0';
+      text.textContent = '证明你不是机器人';
+      text.style.opacity = '1';
+      handle.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="5 9 2 12 5 15"/>
+          <polyline points="9 5 12 2 15 5"/>
+          <polyline points="15 19 12 22 9 19"/>
+          <polyline points="19 9 22 12 19 15"/>
+          <line x1="2" y1="12" x2="22" y2="12"/>
+          <line x1="12" y1="2" x2="12" y2="22"/>
+        </svg>`;
+      offsetX = 0;
+      calcMax();
+    }
+
+    /* ============ 调研 ============ */
+    function setAnswerError(id, msg) {
+      const el = $(id);
+      el.textContent = msg;
+      el.classList.add('show');
+    }
+
+    function clearAnswerError(id) {
+      const el = $(id);
+      el.textContent = '';
+      el.classList.remove('show');
+    }
+
+    function answerQ1(played) {
+      if (played) { clearAnswerError('errQ1'); showModal('modalQ2'); }
+      else { setAnswerError('errQ1', '我的世界牛逼，快去玩我的世界'); }
+    }
+
+    function answerQ2(played) {
+      if (played) { clearAnswerError('errQ2'); showModal('modalContract'); }
+      else { setAnswerError('errQ2', '这都没玩过，快去玩。'); }
+    }
+
+    /* ============ 契约 ============ */
+    const agreeCheck = $('agreeCheck');
+    const continueBtn = $('continueBtn');
+
+    agreeCheck.addEventListener('change', () => {
+      continueBtn.disabled = !agreeCheck.checked;
+    });
+
+    /* ============ 步骤控制 ============ */
+    let reviewTimer = null;
+    let currentDynamicCode = '';
+    let memNumber = '';
+
+    function random6() { return String(Math.floor(100000 + Math.random() * 900000)); }
+    function random8() { return String(Math.floor(10000000 + Math.random() * 90000000)); }
+
+    function goToStep(id) {
+      document.querySelectorAll('#modalStep .step').forEach(s => s.classList.remove('active'));
+      $(id).classList.add('active');
+      showModal('modalStep');
+
+      if (id === 'step2FAVerify') {
+        currentDynamicCode = random6();
+        $('dynamicCode').textContent = currentDynamicCode;
+        $('input2FAVerify').value = '';
+        clearStepError('input2FAVerify', 'err2FAVerify');
+      }
+      if (id === 'stepReview') startReview();
+      if (id === 'stepMemory') initMemory();
+      if (id === 'stepReverse') {
+        const uname = usernameInput.value || 'username';
+        $('reverseName').textContent = uname;
+        $('inputReverse').value = '';
+        clearStepError('inputReverse', 'errReverse');
+      }
+      const input = $(id).querySelector('input');
+      if (input) setTimeout(() => input.focus(), 100);
+    }
+
+    function setStepError(inputId, errId, msg) {
+      $(inputId).classList.add('error');
+      $(errId).textContent = msg;
+    }
+
+    function clearStepError(inputId, errId) {
+      $(inputId).classList.remove('error');
+      $(errId).textContent = '';
+    }
+
+    function submit2FASetup() {
+      const val = $('input2FASetup').value.trim();
+      if (!/^\d{6}$/.test(val)) { setStepError('input2FASetup', 'err2FASetup', '请输入6位数字密钥'); return; }
+      clearStepError('input2FASetup', 'err2FASetup');
+      goToStep('step2FAVerify');
+    }
+
+    function submit2FAVerify() {
+      const val = $('input2FAVerify').value.trim();
+      if (!val) { setStepError('input2FAVerify', 'err2FAVerify', '请输入动态码'); return; }
+      if (val !== currentDynamicCode) { setStepError('input2FAVerify', 'err2FAVerify', '动态码错误，请重新输入'); return; }
+      clearStepError('input2FAVerify', 'err2FAVerify');
+      goToStep('stepEmail');
+    }
+
+    function submitEmail() {
+      const val = $('inputEmail').value.trim();
+      if (val !== '888888') { setStepError('inputEmail', 'errEmail', '验证码错误，请重新输入'); return; }
+      clearStepError('inputEmail', 'errEmail');
+      goToStep('stepSecurity');
+    }
+
+    function submitSecurity() {
+      const val = $('inputSecurity').value.trim();
+      if (val !== '2') { setStepError('inputSecurity', 'errSecurity', '答案错误，请重新输入'); return; }
+      clearStepError('inputSecurity', 'errSecurity');
+      goToStep('stepReview');
+    }
+
+    function startReview() {
+      const fill = $('progressFill');
+      fill.style.width = '0';
+      let p = 0;
+      clearInterval(reviewTimer);
+      reviewTimer = setInterval(() => {
+        p += Math.random() * 4 + 1.5;
+        if (p >= 100) {
+          p = 100;
+          clearInterval(reviewTimer);
+          setTimeout(() => goToStep('stepVoice'), 600);
+        }
+        fill.style.width = p + '%';
+      }, 100);
+    }
+
+    const VOICE_PHRASE = '我的声音是我唯一的身份证明';
+
+    function submitVoice() {
+      const val = $('inputVoice').value.trim();
+      if (val !== VOICE_PHRASE) { setStepError('inputVoice', 'errVoice', '内容不一致，请逐字输入上方句子'); return; }
+      clearStepError('inputVoice', 'errVoice');
+      goToStep('stepColor');
+    }
+
+    function submitColor() {
+      const val = $('inputColor').value.trim();
+      if (val !== '橙色') { setStepError('inputColor', 'errColor', '你是色盲吗？'); return; }
+      clearStepError('inputColor', 'errColor');
+      goToStep('stepMemory');
+    }
+
+    function initMemory() {
+      memNumber = random8();
+      const desc = $('memoryDesc');
+      desc.innerHTML = `记住这串数字：<span class="code-strong">${memNumber}</span> （5秒后消失）`;
+      $('inputMemory').value = '';
+      clearStepError('inputMemory', 'errMemory');
+      setTimeout(() => {
+        if ($('stepMemory').classList.contains('active')) {
+          desc.innerHTML = '数字已消失，请输入刚才的数字';
+        }
+      }, 5000);
+    }
+
+    function submitMemory() {
+      const val = $('inputMemory').value.trim();
+      if (!val) { setStepError('inputMemory', 'errMemory', '请输入刚才的数字'); return; }
+      if (val !== memNumber) { setStepError('inputMemory', 'errMemory', '数字错误，请重新输入'); return; }
+      clearStepError('inputMemory', 'errMemory');
+      goToStep('stepCode');
+    }
+
+    function submitCode() {
+      const val = $('inputCode').value.trim();
+      if (val !== '暗号') { setStepError('inputCode', 'errCode', '暗号错误'); return; }
+      clearStepError('inputCode', 'errCode');
+      goToStep('stepPet');
+    }
+
+    function submitPet() {
+      const val = $('inputPet').value.trim();
+      if (!val) { setStepError('inputPet', 'errPet', '请输入答案'); return; }
+      clearStepError('inputPet', 'errPet');
+      goToStep('stepZodiac');
+    }
+
+    function submitZodiac() {
+      const val = $('inputZodiac').value.trim();
+      if (val !== '蛇夫座') { setStepError('inputZodiac', 'errZodiac', '星座错误，请重新输入'); return; }
+      clearStepError('inputZodiac', 'errZodiac');
+      goToStep('stepTime');
+    }
+
+    function submitTime() {
+      const val = $('inputTime').value.trim();
+      if (val !== '14:29') { setStepError('inputTime', 'errTime', '时间错误，请重新输入'); return; }
+      clearStepError('inputTime', 'errTime');
+      goToStep('stepFaith');
+    }
+
+    function submitFaith() {
+      const val = $('inputFaith').value.trim();
+      if (val !== '我相信') { setStepError('inputFaith', 'errFaith', '你不相信？再试一次。'); return; }
+      clearStepError('inputFaith', 'errFaith');
+      goToStep('stepHidden');
+    }
+
+    function submitHidden() {
+      const val = $('inputHidden').value.trim();
+      if (val !== '迪迦') { setStepError('inputHidden', 'errHidden', '输入错误'); return; }
+      clearStepError('inputHidden', 'errHidden');
+      goToStep('stepEquation');
+    }
+
+    function submitEquation() {
+      const val = $('inputEquation').value.trim();
+      if (val !== '2' && val !== '3') { setStepError('inputEquation', 'errEquation', '答案错误，请重新输入'); return; }
+      clearStepError('inputEquation', 'errEquation');
+      goToStep('stepPi');
+    }
+
+    function submitPi() {
+      const val = $('inputPi').value.trim();
+      if (val !== '9265') { setStepError('inputPi', 'errPi', '答案错误，请重新输入'); return; }
+      clearStepError('inputPi', 'errPi');
+      goToStep('stepReverse');
+    }
+
+    function submitReverse() {
+      const val = $('inputReverse').value.trim();
+      if (!val) { setStepError('inputReverse', 'errReverse', '请输入内容'); return; }
+      clearStepError('inputReverse', 'errReverse');
+      goToStep('stepRead');
+    }
+
+    function submitRead() {
+      const val = $('inputRead').value.trim();
+      if (val !== '本平台是最棒的') { setStepError('inputRead', 'errRead', '输入内容不一致，请重新输入'); return; }
+      clearStepError('inputRead', 'errRead');
+      goToStep('stepPhilosophy');
+    }
+
+    function submitPhilosophy() {
+      const val = $('inputPhilosophy').value.trim();
+      if (!val) { setStepError('inputPhilosophy', 'errPhilosophy', '请输入答案'); return; }
+      clearStepError('inputPhilosophy', 'errPhilosophy');
+      goToStep('stepPrime');
+    }
+
+    function isPrime(n) {
+      if (n < 2) return false;
+      for (let i = 2; i * i <= n; i++) if (n % i === 0) return false;
+      return true;
+    }
+
+    function submitPrime() {
+      const val = $('inputPrime').value.trim();
+      const n = parseInt(val, 10);
+      if (isNaN(n) || n < 1 || n > 100 || !isPrime(n)) {
+        setStepError('inputPrime', 'errPrime', '不是1到100之间的质数');
+        return;
+      }
+      clearStepError('inputPrime', 'errPrime');
+      goToStep('stepRobot');
+    }
+
+    function submitRobot() {
+      const val = $('inputRobot').value.trim();
+      if (val !== '我不是机器人') { setStepError('inputRobot', 'errRobot', '输入错误，请重新输入'); return; }
+      clearStepError('inputRobot', 'errRobot');
+      goToStep('stepMath');
+    }
+
+    function submitMath() {
+      const val = $('inputMath').value.trim();
+      if (val !== '8') { setStepError('inputMath', 'errMath', '答案错误，请重新输入'); return; }
+      clearStepError('inputMath', 'errMath');
+      goToStep('stepReverseOp');
+    }
+
+    function submitReverseOp() {
+      const val = $('inputReverseOp').value.trim();
+      if (val !== '退出') { setStepError('inputReverseOp', 'errReverseOp', '输入错误，请重新输入'); return; }
+      clearStepError('inputReverseOp', 'errReverseOp');
+      goToStep('stepYear');
+    }
+
+    function submitYear() {
+      const val = $('inputYear').value.trim();
+      const now = new Date().getFullYear();
+      if (val !== String(now)) { setStepError('inputYear', 'errYear', '年份错误，请重新输入'); return; }
+      clearStepError('inputYear', 'errYear');
+      goToStep('stepGiveUp');
+    }
+
+    function submitGiveUp() {
+      const val = $('inputGiveUp').value.trim();
+      if (val !== '放弃') { setStepError('inputGiveUp', 'errGiveUp', '输入错误，请重新输入'); return; }
+      clearStepError('inputGiveUp', 'errGiveUp');
+      showModal(null);
+      $('dodgeLayer').classList.remove('hidden');
+      startDodge();
+    }
+
+    /* ============ 躲避注册按钮 ============ */
+    const dodgeBtn = $('dodgeBtn');
+    const flagBtn = $('flagBtn');
+    let dodgeCooldown = false;
+    let dodgeActive = false;
+
+    function startDodge() {
+      dodgeActive = true;
+      dodgeBtn.classList.remove('dodging');
+      dodgeBtn.style.left = '';
+      dodgeBtn.style.top = '';
+    }
+
+    document.addEventListener('mousemove', (e) => {
+      if (!dodgeActive || dodgeCooldown) return;
+      const rect = dodgeBtn.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const dx = e.clientX - cx;
+      const dy = e.clientY - cy;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const threshold = Math.max(rect.width, rect.height) / 2 + 90;
+
+      if (dist < threshold) {
+        dodgeCooldown = true;
+        setTimeout(() => dodgeCooldown = false, 220);
+
+        if (!dodgeBtn.classList.contains('dodging')) {
+          dodgeBtn.style.position = 'fixed';
+          dodgeBtn.style.left = rect.left + 'px';
+          dodgeBtn.style.top = rect.top + 'px';
+          dodgeBtn.classList.add('dodging');
+          void dodgeBtn.offsetWidth;
+        }
+
+        const bw = rect.width;
+        const bh = rect.height;
+        const maxX = window.innerWidth - bw - 20;
+        const maxY = window.innerHeight - bh - 20;
+        const newX = 20 + Math.random() * maxX;
+        const newY = 20 + Math.random() * maxY;
+        dodgeBtn.style.left = newX + 'px';
+        dodgeBtn.style.top = newY + 'px';
+      }
+    });
+
+    /* ============ 投降 → 最终确认 ============ */
+    flagBtn.addEventListener('click', () => {
+      dodgeActive = false;
+      $('dodgeLayer').classList.add('hidden');
+      $('finalLayer').classList.remove('hidden');
+      $('inputFinal').value = '';
+      $('inputFinal').classList.remove('error');
+      $('errFinal').textContent = '';
+      $('finalBtn').disabled = true;
+      setTimeout(() => $('inputFinal').focus(), 100);
+    });
+
+    /* ============ 最终确认 ============ */
+    const FINAL_PHRASE = '我自愿放弃所有权利并永远忠诚于本平台';
+    const inputFinal = $('inputFinal');
+    const finalBtn = $('finalBtn');
+
+    inputFinal.addEventListener('input', () => {
+      finalBtn.disabled = inputFinal.value.length === 0;
+      inputFinal.classList.remove('error');
+      $('errFinal').textContent = '';
+    });
+
+    inputFinal.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !finalBtn.disabled) submitFinal();
+    });
+
+    function submitFinal() {
+      const val = inputFinal.value.trim();
+      if (val !== FINAL_PHRASE) {
+        inputFinal.classList.add('error');
+        $('errFinal').textContent = '输入内容不一致，请逐字输入上方文字';
+        return;
+      }
+      inputFinal.classList.remove('error');
+      $('errFinal').textContent = '';
+      $('finalLayer').classList.add('hidden');
+      $('successLayer').classList.remove('hidden');
+    }
+
+    /* ============ 回车提交 ============ */
+    document.addEventListener('keydown', e => {
+      if (e.key !== 'Enter') return;
+      const activeStep = document.querySelector('#modalStep .step.active');
+      if (!activeStep) return;
+      const id = activeStep.id;
+      const map = {
+        step2FASetup: submit2FASetup,
+        step2FAVerify: submit2FAVerify,
+        stepEmail: submitEmail,
+        stepSecurity: submitSecurity,
+        stepVoice: submitVoice,
+        stepColor: submitColor,
+        stepMemory: submitMemory,
+        stepCode: submitCode,
+        stepPet: submitPet,
+        stepZodiac: submitZodiac,
+        stepTime: submitTime,
+        stepFaith: submitFaith,
+        stepHidden: submitHidden,
+        stepEquation: submitEquation,
+        stepPi: submitPi,
+        stepReverse: submitReverse,
+        stepRead: submitRead,
+        stepPhilosophy: submitPhilosophy,
+        stepPrime: submitPrime,
+        stepRobot: submitRobot,
+        stepMath: submitMath,
+        stepReverseOp: submitReverseOp,
+        stepYear: submitYear,
+        stepGiveUp: submitGiveUp
+      };
+      if (map[id]) map[id]();
+    });
+  </script>
+
+</body>
+</html>

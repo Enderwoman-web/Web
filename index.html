@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bro发烧到20°C 做的</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, "Microsoft YaHei", sans-serif;
+      overflow: hidden;
+    }
+
+    .bg-video {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 0;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: #fff;
+      padding: 20px;
+      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.8);
+    }
+
+    .content h1 {
+      font-size: 52px;
+      margin-bottom: 16px;
+      letter-spacing: 2px;
+    }
+
+    .content p {
+      font-size: 22px;
+      opacity: 0.95;
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+
+    /* 按钮样式 */
+    .btn {
+      display: inline-block;
+      padding: 14px 38px;
+      font-size: 18px;
+      color: #fff;
+      background: rgba(255, 255, 255, 0.15);
+      border: 2px solid #fff;
+      border-radius: 999px;
+      cursor: pointer;
+      text-decoration: none;
+      backdrop-filter: blur(6px);
+      transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+      background: #fff;
+      color: #222;
+      transform: scale(1.05);
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+  </style>
+</head>
+<body>
+
+  <video class="bg-video" autoplay muted loop playsinline>
+    <source src="Background.mp4" type="video/mp4">
+  </video>
+
+  <div class="content">
+    <h1>Bro发烧到20°C 做的</h1>
+    <p>你……好</p>
+
+    <!-- 跳转按钮 -->
+    <a class="btn" href="https://2020-3.pages.dev/神人注册页面/index.html" target="_blank">神人注册页面</a>
+  </div>
+
+</body>
+</html>
